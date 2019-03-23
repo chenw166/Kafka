@@ -63,63 +63,7 @@ public class DMSHttpClient
 
     private static ArrayList<String> handlerIds;
 
-    /*
-     * Read Configure File And Initialize Variables
-     */
-    static
-    {
-        URL configPath = ClassLoader.getSystemResource("dms-service-config.properties");
-        Properties prop = AccessServiceUtils.getPropsFromFile(configPath.getFile());
-        region = prop.getProperty(Constants.DMS_SERVICE_REGION);
-        aKey = prop.getProperty(Constants.DMS_SERVICE_AK);
-        sKey = prop.getProperty(Constants.DMS_SERVICE_SK);
-        endpointUrl = prop.getProperty(Constants.DMS_SERVICE_ENDPOINT_URL);
-        if (endpointUrl.endsWith("/"))
-        {
-            endpointUrl = endpointUrl + "v1.0/";
-        }
-        else
-        {
-            endpointUrl = endpointUrl + "/v1.0/";
-        }
-        projectId = prop.getProperty(Constants.DMS_SERVICE_PROJECT_ID);
-    }
-
-    /**
-     * main entry port
-     * Run all api methods if no passing args, delete group or delete queue if pass
-     *  args like 'rm-g-{group id}' or 'rm-q-{queue id}'
-     * User can pass args to delete group or delete queue when quotas is not enough
-     *
-     * @param args      args can be like 'rm-g-{group id}' or 'rm-q-{queue id}', only one of them for one time.
-     */
-    public static void main(String[] args)
-    {
-        if (args.length == 1)
-        {
-            //pass parameter to delete group: rm-g-{group id}
-            if (args[0].startsWith("rm-g-"))
-            {
-                queueGroupId = args[0].split("rm-g-")[1].toString();
-                System.out.println("Start to delete group....");
-                deleteQueueAndGroup("", queueGroupId);
-            }
-
-            //if quota is not enough, user can delete queue first
-            //pass parameter to delete queue: rm-q-{queue id}
-            if (args[0].startsWith("rm-q-"))
-            {
-                queueId = args[0].split("rm-q-")[1].toString();
-                System.out.println("Start to delete queue....");
-                deleteQueueAndGroup(queueId, "");
-            }
-        }
-        else
-        {
-            runAllApiMethods();
-        }
-    }
-
+    
     /**
      * run all api methods
      */
@@ -213,6 +157,64 @@ public class DMSHttpClient
             }
         }, TIME_OUT_200);
     }
+    /*
+     * Read Configure File And Initialize Variables
+     */
+    static
+    {
+        URL configPath = ClassLoader.getSystemResource("dms-service-config.properties");
+        Properties prop = AccessServiceUtils.getPropsFromFile(configPath.getFile());
+        region = prop.getProperty(Constants.DMS_SERVICE_REGION);
+        aKey = prop.getProperty(Constants.DMS_SERVICE_AK);
+        sKey = prop.getProperty(Constants.DMS_SERVICE_SK);
+        endpointUrl = prop.getProperty(Constants.DMS_SERVICE_ENDPOINT_URL);
+        if (endpointUrl.endsWith("/"))
+        {
+            endpointUrl = endpointUrl + "v1.0/";
+        }
+        else
+        {
+            endpointUrl = endpointUrl + "/v1.0/";
+        }
+        projectId = prop.getProperty(Constants.DMS_SERVICE_PROJECT_ID);
+    }
+
+    /**
+     * main entry port
+     * Run all api methods if no passing args, delete group or delete queue if pass
+     *  args like 'rm-g-{group id}' or 'rm-q-{queue id}'
+     * User can pass args to delete group or delete queue when quotas is not enough
+     *
+     * @param args      args can be like 'rm-g-{group id}' or 'rm-q-{queue id}', only one of them for one time.
+     */
+    public static void main(String[] args)
+    {
+        if (args.length == 1)
+        {
+            //pass parameter to delete group: rm-g-{group id}
+            if (args[0].startsWith("rm-g-"))
+            {
+                queueGroupId = args[0].split("rm-g-")[1].toString();
+                System.out.println("Start to delete group....");
+                deleteQueueAndGroup("", queueGroupId);
+            }
+
+            //if quota is not enough, user can delete queue first
+            //pass parameter to delete queue: rm-q-{queue id}
+            if (args[0].startsWith("rm-q-"))
+            {
+                queueId = args[0].split("rm-q-")[1].toString();
+                System.out.println("Start to delete queue....");
+                deleteQueueAndGroup(queueId, "");
+            }
+        }
+        else
+        {
+            runAllApiMethods();
+        }
+    }
+
+ 
 
     /**
      * delete queue or consumer group
