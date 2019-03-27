@@ -140,7 +140,6 @@ public class DmsKafkaProduceDemo
 							@Override
 							public void onCompletion(RecordMetadata metadata, Exception e) {
 								//如果 Kafka 返回一个错误，onCompletion 方法会抛出一个非空（non null）异常
-								
 								int tryCount=Integer.parseInt(result.get("tryCount").toString());
 								int failCount=Integer.parseInt(result.get("failCount").toString());
 								tryCount++;
