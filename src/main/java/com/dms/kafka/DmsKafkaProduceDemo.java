@@ -22,6 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class DmsKafkaProduceDemo
 {
 	public Logger logger = LoggerFactory.getLogger(DmsKafkaConsumeDemo.class);
+	
+	/**
+	 * 发送即遗忘模式
+	 * @throws IOException
+	 */
 	@RequestMapping("runKafkaProduce")
     public  void runKafkaProduce() throws IOException
     {
@@ -58,12 +63,19 @@ public class DmsKafkaProduceDemo
             	e.printStackTrace();
             }
         }
+        producer.flush();
+        producer.close();
         System.out.println("Fail number: " + faliCount);
         long end_time=System.currentTimeMillis();
-        System.out.println("Execute time: " + (end_time-start_time)/1000+"s");
-        producer.close();
+		System.out.println("start_time:"+start_time+",end_time:"+end_time+",Execute time: " + (end_time-start_time)/1000+"s");
+      
     }
 	
+	
+	/**
+	 * 同步模式
+	 * @throws IOException
+	 */
 	@RequestMapping("runKafkaProduceSynch")
     public  void runKafkaProduceSynch() throws IOException
     {
@@ -102,12 +114,17 @@ public class DmsKafkaProduceDemo
                 e.printStackTrace();
             }
         }
+        producer.flush();
+        producer.close();
         System.out.println("Fail number: " + faliCount);
         long end_time=System.currentTimeMillis();
         System.out.println("Execute time: " + (end_time-start_time)/1000+"s");
-        producer.close();
     }
 	
+	/**
+	 * 异步模式
+	 * @throws IOException
+	 */
 	@RequestMapping("runKafkaProduceAsynch")
     public  void runKafkaProduceAsynch() throws IOException
     {
@@ -123,7 +140,7 @@ public class DmsKafkaProduceDemo
         result.put("start_time", start_time);
         result.put("tryCount", 0);
         result.put("failCount", 0);
-        for (int i = 0; i < 100000; i++)
+        for (int i = 0; i < 100; i++)
         {
         	int partition=0;
         	String msg="hello, dms kafka.,this is asynchMsg:"+i;
@@ -139,13 +156,14 @@ public class DmsKafkaProduceDemo
 	                    partition,key, msg),new Callback() {
 							@Override
 							public void onCompletion(RecordMetadata metadata, Exception e) {
+								
 								//如果 Kafka 返回一个错误，onCompletion 方法会抛出一个非空（non null）异常
 								int tryCount=Integer.parseInt(result.get("tryCount").toString());
 								int failCount=Integer.parseInt(result.get("failCount").toString());
 								tryCount++;
 								result.put("tryCount",tryCount);
 								System.out.println(tryCount);
-								if(tryCount==100000){
+								if(tryCount==100){
 									if (e!= null) {
 										failCount++;
 										result.put("tryCount",tryCount);
@@ -155,7 +173,7 @@ public class DmsKafkaProduceDemo
 									long start_time=Long.parseLong(result.get("start_time").toString());
 									long end_time=System.currentTimeMillis();
 									System.out.println("Fail to send msg: " + failCount);
-									System.out.println("Execute time: " + (end_time-start_time)/1000+"s");
+									System.out.println("1:start_time:"+start_time+",end_time:"+end_time+",Execute time: " + (end_time-start_time)/1000+"s");
 								}else{									
 									if (e!= null) {
 										failCount++;
@@ -174,9 +192,10 @@ public class DmsKafkaProduceDemo
                 e.printStackTrace();
             }
         }
-        
-        
+        producer.flush();
         producer.close();
+        long end_time=System.currentTimeMillis();
+        logger.info("2:start_time:"+start_time+",end_time:"+end_time+",Execute time: " + (end_time-start_time)/1000+"s");
     }
 	
 }
